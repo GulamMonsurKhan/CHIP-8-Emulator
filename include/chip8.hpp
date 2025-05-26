@@ -3,6 +3,9 @@
 #include <cstdint>
 
 class Chip8 {
+
+void Initialize();
+
 public:
     uint32_t gfx[64 * 32];
     uint8_t keypad[16]{};
