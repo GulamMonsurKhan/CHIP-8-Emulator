@@ -1,4 +1,5 @@
 #include <chip8.hpp>
+#include <fstream>
 
 const uint8_t Chip8_fontset[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -29,4 +30,28 @@ void Chip8::Initialize()
     //Load fontset into memory starting at 0x50
     for(int i = 0; i < 80; ++i)
         memory[0x50 + i] = Chip8_fontset[i];
+}
+
+void Chip8::LoadROM(const char * filename)
+{   
+    //Open the file as a stream of binary and move the file pointer to the end
+    std::ifstream rom(filename, std::ios::binary | std::ios::ate);
+
+    if (rom.is_open())
+    {
+        //Get size of the file and allocate a buffer to hold its contents
+        std::streampos size = rom.tellg();
+        char* buffer = new char[size];
+
+        //Go back to the beginning of the file and fill the buffer
+        rom.seekg(0, std::ios::beg);
+        rom.read(buffer, size);
+        rom.close();
+
+        //Load the ROM into CHIP-8 memory, starts at 0x200
+        for(int i = 0; i < size; ++i)
+            memory[0x200 + i] = buffer[i];
+
+        delete[] buffer;
+    }
 }
