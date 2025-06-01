@@ -4,11 +4,13 @@
 
 class Chip8 {
 
-void Initialize();
-
 public:
+    void Initialize();
+    void LoadROM(const char* filename);
     uint32_t gfx[64 * 32];
     uint8_t keypad[16]{};
+    uint8_t* GetMemory() 
+        {return memory;}
 
 private:
     uint16_t pc{};
