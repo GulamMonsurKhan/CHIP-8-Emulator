@@ -1,5 +1,6 @@
 #include <chip8.hpp>
 #include <fstream>
+#include <iostream>
 
 const uint8_t Chip8_fontset[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -54,4 +55,96 @@ void Chip8::LoadROM(const char * filename)
 
         delete[] buffer;
     }
+}
+
+void Chip8::EmulateCycle()
+{   
+    //One opcode is 2 bytes long, shift left to make space, OR to merge
+    opcode = memory[pc] << 8 | memory[pc + 1]; //Fetch opcode
+
+    std::cout << "Fetched Opcode: 0x" << std::hex << std::uppercase << opcode << std::dec << "\n";
+
+    switch(opcode & 0xF000) //Decode opcode, pc + 2 to get to next instruction
+    {
+        case 0x0000:
+        switch(opcode & 0x00FF)
+        {
+            case 0x00E0: //CLS
+                // TODO: Clear display
+                pc += 2;
+                std::cout << "Opcode 00E0: Clear the display\n";
+                break;
+
+            case 0x00EE: //RET
+                --sp;
+                pc = stack[sp];
+                pc += 2;
+                std::cout << "Opcode 00EE: Return from subroutine\n";
+                break;
+
+            default:
+                pc += 2;
+                std::cout << "Unknown Opcode: 0x" << std::hex << opcode << std::dec << "\n";
+                break;
+        }
+        break;
+
+        case 0x1000: //1NNN - JP Address
+            pc = opcode & 0x0FFF; //Masks the last 12 bits --> Gives address
+            std::cout << "Opcode 1NNN: Jump to 0x" << std::hex << (opcode & 0x0FFF) << std::dec << "\n";
+            break;
+        
+        case 0x2000: //2NNN - Call Address
+            stack[sp] = pc;
+            ++sp;
+            pc = opcode & 0x0FFF;
+            std::cout << "Opcode 2NNN: Call to 0x" << std::hex << (opcode & 0x0FFF) << std::dec << "\n";
+            break;
+        
+        case 0x6000: //6XNN - Set VX to NN
+        {
+            uint8_t Vx= (opcode & 0x0F00) >> 8;
+            uint8_t val = (opcode & 0x00FF);
+            registers[Vx] = val;
+            pc += 2;
+            std::cout << "Opcode 6XNN: Set V[" << std::dec << (int)Vx << "] to 0x" << std::hex << (int)val << std::dec << "\n";
+            break;
+        }
+
+        case 0x7000: //7XNN - Add NN to VX (no carry)
+        {
+            uint8_t Vx = (opcode & 0x0F00) >> 8;
+            uint8_t val = (opcode & 0x00FF);
+            registers[Vx] += val;
+            pc += 2;
+            std::cout << "Opcode 7XNN: Add " << std::hex << (int)val << " to V" << std::dec << (int)Vx << std::dec << "\n";
+            break;
+        }
+
+        case 0xA000: //AXNN - Set Index Register to NNN
+        {
+            uint16_t address = (opcode & 0x0FFF);
+            I = address;
+            pc += 2;
+            std::cout << "Opcode AXNN: Set I to " << std::hex << address << std::dec << "\n";
+            break;
+        }
+
+        default:
+            pc += 2;
+            std::cout << "Unknown Opcode: 0x" << std::hex << opcode << std::dec << "\n";
+            break;
+    }
+        
+    //Update timers
+    if(delayTimer > 0)
+        --delayTimer;
+    
+    if(soundTimer > 0)
+        {
+            if(soundTimer == 1)
+                //Will add sound logic
+                printf("Beep\n");
+            --soundTimer;
+        }
 }
