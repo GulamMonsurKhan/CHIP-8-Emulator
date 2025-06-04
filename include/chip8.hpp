@@ -7,6 +7,7 @@ class Chip8 {
 public:
     void Initialize();
     void LoadROM(const char* filename);
+    void EmulateCycle();
     uint32_t gfx[64 * 32];
     uint8_t keypad[16]{};
     uint8_t* GetMemory() 
