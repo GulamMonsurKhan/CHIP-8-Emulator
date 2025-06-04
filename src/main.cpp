@@ -10,5 +10,10 @@ int main()  {
      const uint8_t* memory = chip8.GetMemory();
 
      std::cout << "\nROM loaded and memory initialized." << std::endl;
+
+     for(int i = 0; i < 10; ++i){
+          chip8.EmulateCycle();
+     }
+
      return 0;
 }
