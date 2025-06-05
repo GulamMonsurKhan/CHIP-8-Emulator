@@ -28,6 +28,12 @@ void Chip8::Initialize()
     I = 0;
     sp = 0;
 
+    std::fill(memory, memory + 4096, 0);
+    std::fill(gfx, gfx + 64 * 32, 0); 
+    std::fill(stack, stack + 16, 0);
+    std::fill(registers, registers + 16, 0);
+    std::fill(keypad, keypad + 16, 0);
+
     //Load fontset into memory starting at 0x50
     for(int i = 0; i < 80; ++i)
         memory[0x50 + i] = Chip8_fontset[i];
@@ -71,6 +77,7 @@ void Chip8::EmulateCycle()
         {
             case 0x00E0: //CLS
                 // TODO: Clear display
+                memset(gfx, 0, sizeof(gfx));
                 pc += 2;
                 std::cout << "Opcode 00E0: Clear the display\n";
                 break;
@@ -127,6 +134,35 @@ void Chip8::EmulateCycle()
             I = address;
             pc += 2;
             std::cout << "Opcode AXNN: Set I to " << std::hex << address << std::dec << "\n";
+            break;
+        }
+
+        case 0xD000: {
+            uint8_t x = registers[(opcode & 0x0F00) >> 8];
+            uint8_t y = registers[(opcode & 0x00F0) >> 4];
+            uint8_t height = opcode & 0x000F;
+
+            registers[0xF] = 0; //Reset collision register
+
+            for (int row = 0; row < height; ++row) {
+                uint8_t pixel = memory[I + row];
+                for (int col = 0; col < 8; ++col) {
+                    if ((pixel & (0x80 >> col)) != 0) { //Check if pixel is on
+                        //Screen wrapping
+                        int px = (x + col) % 64; 
+                        int py = (y + row) % 32;
+                        int index = px + py * 64;
+
+                        if (gfx[index] == 1) {
+                            registers[0xF] = 1;
+                        }
+                        gfx[index] ^= 1; //Draw using XOR
+                    }
+                }
+            }
+
+            pc += 2;
+            std::cout << "Opcode DXYN: Draw (" << (int)x << "," << (int)y << ") height: " << int(height) << "\n";
             break;
         }
 
