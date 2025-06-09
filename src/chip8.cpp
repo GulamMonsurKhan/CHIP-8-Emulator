@@ -75,31 +75,41 @@ void Chip8::EmulateCycle()
         switch(opcode & 0x00FF)
         {
             case 0x00E0: //CLS
+            {
                 memset(gfx, 0, sizeof(gfx));
                 pc += 2;
                 break;
+            }
 
             case 0x00EE: //RET
+            {
                 --sp;
                 pc = stack[sp];
                 pc += 2;
                 break;
+            }
 
             default:
+            {
                 pc += 2;
                 break;
+            }
         }
         break;
 
         case 0x1000: //1NNN - JP Address
+        {
             pc = opcode & 0x0FFF; //Masks the last 12 bits --> Gives address
             break;
+        }
         
         case 0x2000: //2NNN - Call Address
+        {
             stack[sp] = pc;
             ++sp;
             pc = opcode & 0x0FFF;
             break;
+        }
 
         case 0x3000: //3XNN - Skip next instruction if VX == NN
             {
@@ -268,7 +278,8 @@ void Chip8::EmulateCycle()
             break;
         }
 
-        case 0xD000: {
+        case 0xD000: 
+        {
             uint8_t x = registers[(opcode & 0x0F00) >> 8];
             uint8_t y = registers[(opcode & 0x00F0) >> 4];
             uint8_t height = opcode & 0x000F;
@@ -296,9 +307,10 @@ void Chip8::EmulateCycle()
             break;
         }
 
-        default:
+        default:{
             pc += 2;
             break;
+        }
     }
         
     //Update timers
