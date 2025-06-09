@@ -46,21 +46,21 @@ int main(int argc, char* argv[])  {
                if (event.type == SDL_QUIT) {
                     running = false;
                }
-               chip8.EmulateCycle();
-
-               uint32_t pixels[SCREEN_WIDTH * SCREEN_HEIGHT]; //CHIP-8 graphics buffer to SDL pixel buffer
-               for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; ++i) {
-                    pixels[i] = chip8.gfx[i] ? ON_COLOR : OFF_COLOR; 
-               }
-               //Update texture with pixel data
-               SDL_UpdateTexture(texture, nullptr, pixels, SCREEN_WIDTH * sizeof(uint32_t));
-               //Render the updated texture to the window
-               SDL_RenderClear(renderer);
-               SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-               SDL_RenderPresent(renderer);
-
-               SDL_Delay(16); //60 fps: 1000ms / 60 = 16ms
           }
+          chip8.EmulateCycle();
+
+          uint32_t pixels[SCREEN_WIDTH * SCREEN_HEIGHT]; //CHIP-8 graphics buffer to SDL pixel buffer
+          for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; ++i) {
+               pixels[i] = chip8.gfx[i] ? ON_COLOR : OFF_COLOR; 
+          }
+          //Update texture with pixel data
+          SDL_UpdateTexture(texture, nullptr, pixels, SCREEN_WIDTH * sizeof(uint32_t));
+          //Render the updated texture to the window
+          SDL_RenderClear(renderer);
+          SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+          SDL_RenderPresent(renderer);
+
+          SDL_Delay(16); //60 fps: 1000ms / 60 = 16ms
 
      }
      //Clean up
