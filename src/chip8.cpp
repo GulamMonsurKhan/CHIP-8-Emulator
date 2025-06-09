@@ -107,6 +107,42 @@ void Chip8::EmulateCycle()
             pc = opcode & 0x0FFF;
             std::cout << "Opcode 2NNN: Call to 0x" << std::hex << (opcode & 0x0FFF) << std::dec << "\n";
             break;
+
+        case 0x3000: //3XNN - Skip next instruction if VX == NN
+            {
+                uint8_t Vx = (opcode & 0x0F00) >> 8;
+                uint8_t val = (opcode & 0x00FF);
+                if (registers[Vx] == val)
+                    pc += 4;
+                else
+                    pc += 2;
+                std::cout <<"Opcode 3XNN: Skip next instruction if V" << std::hex << (int)Vx << " equals to 0x " << (int)val << std::dec << "\n";
+                break;
+            }
+
+        case 0x4000: //4XNN - Skip next instruction if VX != NN
+            {
+                uint8_t Vx = (opcode & 0x0F00) >> 8;
+                uint8_t val = (opcode & 0x00FF);
+                if (registers[Vx] != val)
+                    pc += 4;
+                else
+                    pc += 2;
+                std::cout <<"Opcode 4XNN: Skip next instruction if " << std::hex << (int)Vx << " doesn't equal to " << (int)val << std::dec << "\n";
+                break;
+            }
+
+        case 0x5000: //5XY0 - Skip next instruction if VX == VY
+            {
+                uint8_t Vx = (opcode & 0x0F00) >> 8;
+                uint8_t Vy = (opcode & 0x00F0) >> 4;
+                if (registers[Vx] == registers[Vy])
+                    pc += 4;
+                else
+                    pc += 2;
+                std::cout <<"Opcode 5XY0: Skip next instruction if V" << std::hex << (int)Vx << " equals to V" << (int)Vy << std::dec << "\n";
+                break;
+            }
         
         case 0x6000: //6XNN - Set VX to NN
         {
@@ -124,7 +160,18 @@ void Chip8::EmulateCycle()
             uint8_t val = (opcode & 0x00FF);
             registers[Vx] += val;
             pc += 2;
-            std::cout << "Opcode 7XNN: Add " << std::hex << (int)val << " to V" << std::dec << (int)Vx << std::dec << "\n";
+            std::cout << "Opcode 7XNN: Add 0x" << std::hex << (int)val << " to V" << (int)Vx << std::dec << "\n";
+            break;
+        }
+
+        case 0x9000: //9XY0 - Skip next instruction if VX != VY
+        {
+            uint8_t Vx = (opcode & 0x0F00) >> 8;
+            uint8_t Vy = (opcode & 0x00F0) >> 4;
+            if (registers[Vx] != registers[Vy])
+                pc += 2;
+            pc += 2;
+            std::cout <<"Opcode 9XY0: Skip next instruction if" << std::hex << (int)Vx << "doesnt equal to" << (int)Vy << std::dec << "\n";
             break;
         }
 
