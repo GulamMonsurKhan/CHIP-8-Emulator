@@ -69,8 +69,6 @@ void Chip8::EmulateCycle()
     //One opcode is 2 bytes long, shift left to make space, OR to merge
     opcode = memory[pc] << 8 | memory[pc + 1]; //Fetch opcode
 
-    std::cout << "Fetched Opcode: 0x" << std::hex << std::uppercase << opcode << std::dec << "\n";
-
     switch(opcode & 0xF000) //Decode opcode, pc + 2 to get to next instruction
     {
         case 0x0000:
