@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 #include <SDL2/SDL.h>
 #include <chip8.hpp>
 
@@ -16,7 +17,16 @@ int main(int argc, char* argv[])  {
           return 1;
      }
 
-     const char* romPath = argv[1];
+     std::filesystem::path romPath = argv[1];
+     std::filesystem::path currentPath = std::filesystem::current_path();
+
+     if (currentPath.filename() == "build") {
+          romPath = currentPath.parent_path() / "roms" / romPath;
+     } else {
+          romPath = "roms" / romPath;
+     }
+
+     std::cout << "Loading ROM from: " << romPath << std::endl;
      
      Chip8 chip8;
      chip8.Initialize();
