@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 
 class Chip8 {
 
 public:
     void Initialize();
-    void LoadROM(const char* filename);
+    void LoadROM(const std::filesystem::path& filepath);
     void EmulateCycle();
     uint32_t gfx[64 * 32];
     uint8_t keypad[16]{};

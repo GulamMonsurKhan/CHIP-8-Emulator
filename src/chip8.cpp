@@ -1,6 +1,7 @@
 #include <chip8.hpp>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 const uint8_t Chip8_fontset[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -39,7 +40,7 @@ void Chip8::Initialize()
         memory[0x50 + i] = Chip8_fontset[i];
 }
 
-void Chip8::LoadROM(const char * filename)
+void Chip8::LoadROM(const std::filesystem::path& filename)
 {   
     //Open the file as a stream of binary and move the file pointer to the end
     std::ifstream rom(filename, std::ios::binary | std::ios::ate);
