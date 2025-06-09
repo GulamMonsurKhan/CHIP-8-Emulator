@@ -169,8 +169,9 @@ void Chip8::EmulateCycle()
             uint8_t Vx = (opcode & 0x0F00) >> 8;
             uint8_t Vy = (opcode & 0x00F0) >> 4;
             if (registers[Vx] != registers[Vy])
+                pc += 4;
+            else
                 pc += 2;
-            pc += 2;
             std::cout <<"Opcode 9XY0: Skip next instruction if" << std::hex << (int)Vx << "doesnt equal to" << (int)Vy << std::dec << "\n";
             break;
         }
