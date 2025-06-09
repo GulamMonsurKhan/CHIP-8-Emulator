@@ -77,36 +77,30 @@ void Chip8::EmulateCycle()
         switch(opcode & 0x00FF)
         {
             case 0x00E0: //CLS
-                // TODO: Clear display
                 memset(gfx, 0, sizeof(gfx));
                 pc += 2;
-                std::cout << "Opcode 00E0: Clear the display\n";
                 break;
 
             case 0x00EE: //RET
                 --sp;
                 pc = stack[sp];
                 pc += 2;
-                std::cout << "Opcode 00EE: Return from subroutine\n";
                 break;
 
             default:
                 pc += 2;
-                std::cout << "Unknown Opcode: 0x" << std::hex << opcode << std::dec << "\n";
                 break;
         }
         break;
 
         case 0x1000: //1NNN - JP Address
             pc = opcode & 0x0FFF; //Masks the last 12 bits --> Gives address
-            std::cout << "Opcode 1NNN: Jump to 0x" << std::hex << (opcode & 0x0FFF) << std::dec << "\n";
             break;
         
         case 0x2000: //2NNN - Call Address
             stack[sp] = pc;
             ++sp;
             pc = opcode & 0x0FFF;
-            std::cout << "Opcode 2NNN: Call to 0x" << std::hex << (opcode & 0x0FFF) << std::dec << "\n";
             break;
 
         case 0x3000: //3XNN - Skip next instruction if VX == NN
@@ -117,7 +111,6 @@ void Chip8::EmulateCycle()
                     pc += 4;
                 else
                     pc += 2;
-                std::cout <<"Opcode 3XNN: Skip next instruction if V" << std::hex << (int)Vx << " equals to 0x " << (int)val << std::dec << "\n";
                 break;
             }
 
@@ -129,7 +122,6 @@ void Chip8::EmulateCycle()
                     pc += 4;
                 else
                     pc += 2;
-                std::cout <<"Opcode 4XNN: Skip next instruction if " << std::hex << (int)Vx << " doesn't equal to " << (int)val << std::dec << "\n";
                 break;
             }
 
@@ -141,7 +133,6 @@ void Chip8::EmulateCycle()
                     pc += 4;
                 else
                     pc += 2;
-                std::cout <<"Opcode 5XY0: Skip next instruction if V" << std::hex << (int)Vx << " equals to V" << (int)Vy << std::dec << "\n";
                 break;
             }
         
@@ -151,7 +142,6 @@ void Chip8::EmulateCycle()
             uint8_t val = (opcode & 0x00FF);
             registers[Vx] = val;
             pc += 2;
-            std::cout << "Opcode 6XNN: Set V[" << std::dec << (int)Vx << "] to 0x" << std::hex << (int)val << std::dec << "\n";
             break;
         }
 
@@ -161,7 +151,6 @@ void Chip8::EmulateCycle()
             uint8_t val = (opcode & 0x00FF);
             registers[Vx] += val;
             pc += 2;
-            std::cout << "Opcode 7XNN: Add 0x" << std::hex << (int)val << " to V" << (int)Vx << std::dec << "\n";
             break;
         }
 
@@ -270,7 +259,6 @@ void Chip8::EmulateCycle()
                 pc += 4;
             else
                 pc += 2;
-            std::cout <<"Opcode 9XY0: Skip next instruction if" << std::hex << (int)Vx << "doesnt equal to" << (int)Vy << std::dec << "\n";
             break;
         }
 
@@ -279,7 +267,6 @@ void Chip8::EmulateCycle()
             uint16_t address = (opcode & 0x0FFF);
             I = address;
             pc += 2;
-            std::cout << "Opcode AXNN: Set I to " << std::hex << address << std::dec << "\n";
             break;
         }
 
@@ -308,13 +295,11 @@ void Chip8::EmulateCycle()
             }
 
             pc += 2;
-            std::cout << "Opcode DXYN: Draw (" << (int)x << "," << (int)y << ") height: " << int(height) << "\n";
             break;
         }
 
         default:
             pc += 2;
-            std::cout << "Unknown Opcode: 0x" << std::hex << opcode << std::dec << "\n";
             break;
     }
         
