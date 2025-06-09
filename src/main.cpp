@@ -9,11 +9,23 @@ const int SCREEN_WIDTH = 64;
 const int SCREEN_HEIGHT = 32;
 const int SCALE = 12;
 
-int main()  {
+int main(int argc, char* argv[])  {
+
+     if (argc < 2) {
+          std::cerr << "Usage: " << argv[0] << " <ROM file>" << std::endl;
+          return 1;
+     }
+
+     const char* romPath = argv[1];
      
      Chip8 chip8;
      chip8.Initialize();
-     chip8.LoadROM("roms/IBM_Logo.ch8");
+     chip8.LoadROM(romPath);
+
+     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+          std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
+          return 1;
+     }
 
      SDL_Window *window = SDL_CreateWindow("CHIP-8 Emulator",  //Initialize SDL, window creation
           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
