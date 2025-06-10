@@ -233,7 +233,7 @@ void Chip8::EmulateCycle()
 
                 case 0x8007: //VX = VY - VX, set VF if borrow
                 {
-                    if (registers[Vx] < registers[Vy]) {
+                    if (registers[Vy] > registers[Vx]) {
                         registers[0xF] = 0;
                     }
                     else {
