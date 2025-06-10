@@ -162,7 +162,7 @@ void Chip8::EmulateCycle()
             break;
         }
 
-        case 0x8000: //8XY0 
+        case 0x8000: //8XY_
         {
             uint8_t Vx = (opcode & 0x0F00) >> 8;
             uint8_t Vy = (opcode & 0x00F0) >> 4;
@@ -199,55 +199,63 @@ void Chip8::EmulateCycle()
                 case 0x8004: //VX += VY, set VF if carry
                 {
                     uint16_t sum = registers[Vx] + registers[Vy];
+                    registers[Vx] = sum & 0xFF;
                     if (sum > 0xFF) {
                         registers[0xF] = 1;
                     }
                     else {
                         registers[0xF] = 0;
                     }
-                    registers[Vx] = sum & 0xFF;
                     pc += 2;
                     break;
                 }
 
-                case 0x8005: //VX - VY, set VF if borrow
+                case 0x8005: // VX = VX - VY, set VF if borrow
                 {
-                    if (registers[Vx] > registers[Vy]) {
-                        registers[0xF] = 1;
-                    }
-                    else {
-                        registers[0xF] = 0;
-                    }
-                    registers[Vx] -= registers[Vy];
+                        uint8_t x = registers[Vx];
+                        uint8_t y = registers[Vy];
+                        uint8_t result = x - y;
+                        registers[Vx] = result;
+                        if (x >= y) {
+                            registers[0xF] = 1;
+                        } else {
+                            registers[0xF] = 0;
+                        }
                     pc += 2;
                     break;
                 }
                     
-                case 0x8006: //Shift VX right by 1, set VF to shifted bit
+                case 0x8006: //VX = VY >> 1, VF = LSB of VY
                 {
-                    registers[0xF] = registers[Vx] & 0x1;
-                    registers[Vx] >>= 1;
+                    uint8_t y = registers[Vy];
+                    uint8_t result = y >> 1;
+                    registers[Vx] = result;
+                    registers[0xF] = y & 0x1;
                     pc += 2;
                     break;
                 }
 
                 case 0x8007: //VX = VY - VX, set VF if borrow
                 {
-                    if (registers[Vy] > registers[Vx]) {
-                        registers[0xF] = 0;
-                    }
-                    else {
-                        registers[0xF] = 1;
-                    }
-                    registers[Vx] = registers[Vy] - registers[Vx];
+                        uint8_t x = registers[Vx];
+                        uint8_t y = registers[Vy];
+                        uint8_t result = y - x;
+                        registers[Vx] = result;
+                        if (y >= x) {
+                            registers[0xF] = 1;
+                        } else {
+                            registers[0xF] = 0;
+                        }
                     pc += 2;
                     break;
                 }
 
-                case 0x800E: //Shift VX left by 1, set VF to shifted bit
+                case 0x800E: //VX = VY << 1, VF = MSB of VY
                 {
-                    registers[0xF] = (registers[Vx] & 0x80) >> 7;
-                    registers[Vx] <<= 1;
+                    uint8_t y = registers[Vy];
+                    uint8_t result = y << 1;
+                    registers[Vx] = result;
+                    registers[0xF] = (y & 0x80) >> 7;
                     pc += 2;
                     break;
                 }
