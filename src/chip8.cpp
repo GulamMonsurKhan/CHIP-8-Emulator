@@ -307,6 +307,88 @@ void Chip8::EmulateCycle()
             break;
         }
 
+        case 0xF000: //FX__
+        {
+            uint8_t Vx = (opcode & 0x0F00) >> 8;
+            switch (opcode & 0xF0FF) {
+
+                case 0xF007: //Set VX to delay timer
+                {
+                    registers[Vx] = delayTimer;
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF00A: //Store keypress in VX
+                {
+                    //TODO - Once keyboard implemented
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF015: //Set delay timer to VX
+                {
+                    delayTimer = registers[Vx];
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF018: //Set sound timer to VX
+                {
+                    soundTimer = registers[Vx];
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF01E: //Add VX to I
+                {
+                    I += registers[Vx];
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF029: //Set I to memory address of sprite for hex digit in VX
+                {
+                    uint8_t digit = registers[Vx];
+                    I = 0x50 + (5 * digit);
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF033: //Store binary-coded decimal of VX in I, I+1, I+2
+                {
+                    uint8_t val = registers[Vx];
+                    memory[I+2] = val % 10; //Ones place
+                    val /= 10;
+                    memory[I+1] = val % 10; //Tens place
+                    val /= 10;
+                    memory[I] = val % 10; //Hundreds place
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF055: //Store V0 to VX in memory starting at I
+                {
+                    for (uint8_t i = 0; i <= Vx; ++i) {
+                        memory[I+i] = registers[i]; 
+                    }
+                    pc += 2;
+                    break;
+                }
+
+                case 0xF065: //Load V0 to VX from memory starting at I
+                {
+                    for (uint8_t i = 0; i <= Vx; ++i) {
+                        registers[i] = memory[I+i];
+                    }
+                    pc += 2;
+                    break;
+                }
+
+            }
+            break;
+        }
+
         default:{
             pc += 2;
             break;
