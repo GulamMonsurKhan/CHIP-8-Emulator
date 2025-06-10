@@ -315,6 +315,43 @@ void Chip8::EmulateCycle()
             break;
         }
 
+        case 0xE000: //EX__
+        {
+            uint8_t Vx = (opcode & 0x0F00) >> 8;
+            uint8_t key = registers[Vx];
+            switch (opcode & 0xF0FF) {
+
+                case 0xE09E: //Skip next instruction if key in Vx is pressed
+                {
+                    if (keypad[key]) {
+                        pc += 4;
+                    }
+                    else {
+                        pc += 2;
+                    }
+                    break;
+                }
+                
+                case 0xE0A1: //Skip next instruction if key in Vx NOT pressed
+                {
+                if (!keypad[key]) {
+                        pc += 4;
+                    }
+                    else {
+                        pc += 2;
+                    }
+                    break;
+                }
+
+                default: 
+                {
+                    pc += 2;
+                    break;
+                }
+            }
+            break;
+        }
+
         case 0xF000: //FX__
         {
             uint8_t Vx = (opcode & 0x0F00) >> 8;
@@ -329,9 +366,26 @@ void Chip8::EmulateCycle()
 
                 case 0xF00A: //Store keypress in VX
                 {
-                    //TODO - Once keyboard implemented
-                    pc += 2;
-                    break;
+                    if (!waitingForKey) {
+                        for (uint8_t i = 0; i < 16; ++i) {
+                            if (keypad[i]) {
+                                pressedKey = i;
+                                waitingRegister = Vx;
+                                waitingForKey = true;
+                                return; // Wait until the key is released
+                            }
+                        }
+                        return; // Still waiting for a key to be pressed
+                    }
+                    else {
+                        if (!keypad[pressedKey]) {
+                            registers[waitingRegister] = pressedKey;
+                            waitingForKey = false;
+                            pressedKey = -1;
+                            pc += 2;
+                        }
+                        return; // Either just finished or still waiting
+                    }
                 }
 
                 case 0xF015: //Set delay timer to VX
@@ -402,7 +456,9 @@ void Chip8::EmulateCycle()
             break;
         }
     }
-        
+}
+
+void Chip8::TickTimers() {
     //Update timers
     if(delayTimer > 0)
         --delayTimer;
